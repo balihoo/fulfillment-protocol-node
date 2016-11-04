@@ -1,0 +1,6 @@
+module.exports =
+  SUCCESS: "SUCCESS"
+  FAILED: "FAILED"
+  INVALID: "INVALID"
+  FATAL: "FATAL"
+  DEFER: "DEFER"

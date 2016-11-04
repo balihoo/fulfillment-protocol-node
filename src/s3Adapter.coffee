@@ -2,13 +2,12 @@ aws = require 'aws-sdk'
 Promise = require 'bluebird'
 url = require 'url'
 
-class S3Adapter
-  constructor: (config) ->
-    @bucket = config.bucket
-    
+exports.S3Adapter = class S3Adapter
+  constructor: (opts) ->
+    @bucket = opts.bucket
+
     s3Config =
       apiVersion: "2006-03-01"
-      region: config.region
       params:
         Bucket: @bucket
 
@@ -24,9 +23,7 @@ class S3Adapter
   download: (s3Url) ->
     urlParts = url.parse s3Url
     path = urlParts.path.replace /^\//, '' # Remove leading /
-    
+
     @s3.getObjectAsync
       Bucket: urlParts.host
       Key: path
-
-module.exports = S3Adapter

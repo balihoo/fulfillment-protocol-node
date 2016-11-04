@@ -1,6 +1,7 @@
 crypto = require 'crypto'
 zlib = require 'zlib'
 Promise = require 'bluebird'
+S3Adapter = require('./s3Adapter').S3Adapter
 startsWith = require('./utils').startsWith
 Promise.promisifyAll zlib
 
@@ -46,7 +47,8 @@ storeInS3 = (data, s3Adapter) ->
     "#{URL_PREFIX}#{SEPARATOR}#{hash}#{SEPARATOR}#{uri}"
 
 exports.DataZipper = class DataZipper
-  constructor: (@s3Adapter) ->
+  constructor: (opts) ->
+    @s3Adapter = opts.s3Adapter or new S3Adapter bucket: opts.bucket
 
   getFromUrl: (ff_url) ->
     parts = ff_url.split SEPARATOR
@@ -84,7 +86,8 @@ exports.DataZipper = class DataZipper
           unzip ff_url
         else if startsWith ff_url, URL_PREFIX
           @getFromUrl ff_url
-          .then @receive
+          .then (result) =>
+            @receive result
         else
           # It isn't an ZIP or URL, so just return the string
           return ff_url

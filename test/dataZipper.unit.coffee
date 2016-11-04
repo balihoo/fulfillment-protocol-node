@@ -1,31 +1,48 @@
 assert = require 'assert'
 sinon = require 'sinon'
 aws = require 'aws-sdk'
-S3Adapter = require '../lib/s3Adapter'
+S3Adapter = require('../src/s3Adapter').S3Adapter
 mockS3 = require './mocks/mockS3'
-dataZipper = require '../lib/dataZipper'
+dataZipper = require '../src/dataZipper'
 
 bigTestData = require './bigTestData.json'
 biggerTestData = require './biggerTestData.json'
 
-smallResult = {
+fakeBucket = 'some.bucket'
+
+smallResult =
   stuff: 'things'
-}
 
 describe 'dataZipper unit tests', ->
   describe 'deliver() / receive()', ->
+    context "when an s3 adapter is passed to the constructor", ->
+      it "uses it", ->
+        fakeS3Adapter = { "I'm": "a fake s3 adapter!" }
+        zipper = new dataZipper.DataZipper s3Adapter: fakeS3Adapter
+        assert.strictEqual zipper.s3Adapter, fakeS3Adapter
+
+    context "when no s3 adapter is passed to the constructor", ->
+      it "creates its own", ->
+        zipper = new dataZipper.DataZipper bucket: fakeBucket
+        assert zipper.s3Adapter instanceof S3Adapter
+        assert.strictEqual zipper.s3Adapter.bucket, fakeBucket
+
     context "when the supplied data is less than #{dataZipper.MAX_RESULT_SIZE} bytes", ->
       it 'returns the supplied data', ->
-        zipper = new dataZipper.DataZipper null
+        zipper = new dataZipper.DataZipper {}
 
         zipper.deliver smallResult
+        .then (result) ->
+          assert.strictEqual result, smallResult
+
+          zipper.receive smallResult
         .then (result) ->
           assert.strictEqual result, smallResult
 
     context "when the supplied data is greater than #{dataZipper.MAX_RESULT_SIZE} bytes", ->
       context "and the compressed data is less than #{dataZipper.MAX_RESULT_SIZE} bytes", ->
         it 'returns a compressed and base64-encoded string', ->
-          zipper = new dataZipper.DataZipper null
+          zipper = new dataZipper.DataZipper {}
 
           expectedStart = dataZipper.ZIP_PREFIX + dataZipper.SEPARATOR
 
@@ -42,14 +59,12 @@ describe 'dataZipper unit tests', ->
       context "and the compressed data is greater than #{dataZipper.MAX_RESULT_SIZE} bytes", ->
         it 'returns an S3 URL', ->
           uploadedData = null
-          fakeBucket = 'some.bucket'
           sinon.stub aws, 'S3', mockS3
 
           s3Adapter = new S3Adapter
             bucket: fakeBucket
-            region: 'some region'
 
-          zipper = new dataZipper.DataZipper s3Adapter
+          zipper = new dataZipper.DataZipper s3Adapter: s3Adapter
           expectedStart = dataZipper.URL_PREFIX + dataZipper.SEPARATOR
 
           zipper.deliver biggerTestData
