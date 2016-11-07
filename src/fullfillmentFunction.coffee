@@ -88,6 +88,6 @@ exports.FulfillmentFunction = class FulfillmentFunction
         disableProtocol = true
         throw "unauthorized" # Don't change this string unless you also change the corresponding regex in API Gateway.
 
-      @handler input
+      @handler input, context
     .then handleResult
     .catch handleError

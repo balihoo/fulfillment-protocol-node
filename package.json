@@ -1,6 +1,6 @@
 {
   "name": "fulfillment-protocol-node",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Protocol for interacting with the Balihoo Fulfillment system",
   "main": "lib/index.js",
   "directories": {
@@ -20,8 +20,9 @@
     "sinon": "1.17.6"
   },
   "scripts": {
+    "compile": "node_modules/coffee-script/bin/coffee -cb -o lib src",
     "watch": "node_modules/coffee-script/bin/coffee -cb -o lib -w src",
-    "test": "node_modules/mocha/bin/mocha test/*.coffee --compilers coffee:coffee-script/register",
+    "test": "npm run-script compile;node_modules/mocha/bin/mocha test/*.coffee --compilers coffee:coffee-script/register",
     "cover": "node_modules/mocha/bin/mocha test/*.coffee --compilers coffee:coffee-script/register --require coffee-coverage/register-istanbul;node_modules/.bin/istanbul report"
   },
   "repository": {
