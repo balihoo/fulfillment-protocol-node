@@ -53,8 +53,7 @@ describe 'dataZipper unit tests', ->
 
             zipper.receive encodedResult
           .then (decodedResult) ->
-            result = JSON.parse decodedResult
-            assert.deepEqual result, bigTestData
+            assert.deepEqual decodedResult, bigTestData
 
       context "and the compressed data is greater than #{dataZipper.MAX_RESULT_SIZE} bytes", ->
         it 'returns an S3 URL', ->
@@ -91,7 +90,6 @@ describe 'dataZipper unit tests', ->
 
             zipper.receive s3Result
           .then (decodedResult) ->
-            result = JSON.parse decodedResult
-            assert.deepEqual result, biggerTestData
+            assert.deepEqual decodedResult, biggerTestData
 
 

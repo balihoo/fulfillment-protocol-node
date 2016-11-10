@@ -37,7 +37,7 @@ unzip = (data) ->
 
   zlib.inflateAsync compressed
   .then (decompressed) ->
-    return decompressed.toString 'utf-8'
+    decompressed.toString 'utf-8'
 
 storeInS3 = (data, s3Adapter) ->
   hash = hash data
@@ -84,6 +84,8 @@ exports.DataZipper = class DataZipper
       if typeof ff_url is 'string'
         if startsWith ff_url, ZIP_PREFIX
           unzip ff_url
+          .then (unzipped) ->
+            JSON.parse unzipped
         else if startsWith ff_url, URL_PREFIX
           @getFromUrl ff_url
           .then (result) =>
