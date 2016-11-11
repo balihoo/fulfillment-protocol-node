@@ -8,7 +8,7 @@ activityStatus = require "../src/activityStatus"
 describe "FulfillmentFunction unit tests", ->
   context "when fulfillment protocol is enabled", ->
     context "and the handler runs successfully", ->
-      it "calls dataZipper.deliver with the result and context.succeed with the result + success status", ->
+      it "calls dataZipper.deliver and context.succeed with the result + success status", ->
         context =
           succeed: sinon.spy()
           fail: (err) -> throw err
@@ -34,7 +34,7 @@ describe "FulfillmentFunction unit tests", ->
         f.handle event, context
         .then ->
           assert f.dataZipper.deliver.calledOnce
-          assert f.dataZipper.deliver.calledWith handlerResult
+          assert f.dataZipper.deliver.calledWith expectedResult
           assert context.succeed.calledOnce
           assert context.succeed.calledWith expectedResult
 

@@ -31,10 +31,11 @@ exports.FulfillmentFunction = class FulfillmentFunction
       Promise.try =>
         return result if disableProtocol
 
-        @dataZipper.deliver result
-        .then (maybeZippedResult) ->
+        result =
           status: activityStatus.SUCCESS
-          result: maybeZippedResult
+          result: result
+
+        @dataZipper.deliver result
       .then context.succeed
 
     handleError = (err) =>
