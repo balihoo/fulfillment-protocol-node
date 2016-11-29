@@ -40,11 +40,11 @@ unzip = (data) ->
     decompressed.toString 'utf-8'
 
 storeInS3 = (data, s3Adapter) ->
-  hash = hash data
+  dataHash = hash data
 
-  s3Adapter.upload "#{s3dir}/#{hash}.ff", data
+  s3Adapter.upload "#{s3dir}/#{dataHash}.ff", data
   .then (uri) ->
-    "#{URL_PREFIX}#{SEPARATOR}#{hash}#{SEPARATOR}#{uri}"
+    "#{URL_PREFIX}#{SEPARATOR}#{dataHash}#{SEPARATOR}#{uri}"
 
 exports.DataZipper = class DataZipper
   constructor: (opts) ->
