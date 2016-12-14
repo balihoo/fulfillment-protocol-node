@@ -19,9 +19,31 @@ exports.FulfillmentUnhandledError = class FulfillmentUnhandledError extends Fulf
     if @innerError?.fatal then activityStatus.FATAL else activityStatus.FAILED
 
 exports.FulfillmentValidationError = class FulfillmentValidationError extends FulfillmentError
+  constructor: (message, @validationResult, @notes) ->
+    @name = @constructor.name
+
+    firstError = @validationResult?.errors?[0]
+
+    if firstError
+      @stack = firstError.stack
+      message = "#{message}: #{firstError.stack}"
+
+    @message = message
+
   """ Failure: A retry without fixing the input will not work """
   responseCode: ->
     activityStatus.INVALID
+
+  toFulfillmentPayload: ->
+    @validationResult?.errors?.map (e) ->
+      absolute_path: e.property
+      relative_path: e.property
+      path: e.property
+      validator: e.name
+      context: []
+      message: e.stack
+      cause: null
+      validator_value: e.instance
 
 exports.FulfillmentFatalError = class FulfillmentFatalError extends FulfillmentError
   """ Fatal: A retry without fixing the input will not work """

@@ -100,7 +100,82 @@ describe "FulfillmentFunction unit tests", ->
         f.handle event, context
         .then ->
           assert context.succeed.calledOnce
-          assert.deepEqual expectedResult, context.succeed.firstCall.args[0]
+          assert.deepEqual context.succeed.firstCall.args[0], expectedResult
+
+    context "and the input fails to validate", ->
+      it "adds a validation_errors section to the response payload", ->
+
+        expectedValidationErrors = [
+          absolute_path: "instance.stuff"
+          path: "instance.stuff"
+          relative_path: "instance.stuff"
+          message: "instance.stuff is not of a type(s) string"
+          validator: "type"
+          validator_value: 1
+          context: []
+          cause: null
+        ,
+          absolute_path: "instance.other"
+          path: "instance.other"
+          relative_path: "instance.other"
+          message: 'instance.other requires property "things"'
+          validator: "required"
+          validator_value: blah: "hi!"
+          context: []
+          cause: null
+        ,
+          absolute_path: "instance"
+          path: "instance"
+          relative_path: "instance"
+          message: 'instance requires property "more"'
+          validator: "required"
+          validator_value:
+            stuff: 1
+            other:
+              blah: "hi!"
+          context: []
+          cause: null
+
+        ]
+        firstErrorFull = "Error validating input: #{expectedValidationErrors[0].message}"
+
+        context =
+          succeed: sinon.spy()
+          fail: (err) -> throw err
+
+        f = new fulfillmentFunction.FulfillmentFunction
+          schema:
+            params:
+              type: "object"
+              properties:
+                stuff: type: "string"
+                more: type: "string"
+                other:
+                  type: "object"
+                  properties:
+                    things: type: "string"
+                  required: ["things"]
+              required: ["stuff", "other", "more"]
+          disableProtocol: false
+          handler: sinon.spy()
+
+        event =
+          stuff: 1
+          other:
+            blah: "hi!"
+
+        expectedResult =
+          status: activityStatus.INVALID
+          notes: []
+          reason: firstErrorFull
+          result: firstErrorFull
+          trace: [expectedValidationErrors[0].message]
+          validation_errors: expectedValidationErrors
+
+        f.handle event, context
+        .then ->
+          assert context.succeed.calledOnce
+          assert.deepEqual context.succeed.firstCall.args[0], expectedResult
 
   context "when fulfillment protocol is disabled by the function author", ->
     it "calls the handler with the event and calls context.succeed with the result", ->
@@ -174,7 +249,7 @@ describe "FulfillmentFunction unit tests", ->
 
           err = context.fail.firstCall.args[0]
           assert err instanceof error.FulfillmentValidationError
-          assert.equal err.message, 'Error validating input: requires property "stuff"'
+          assert.equal err.message, 'Error validating input: instance requires property "stuff"'
 
   context "when schema validation is disabled", ->
     it "bypasses schema validation", ->

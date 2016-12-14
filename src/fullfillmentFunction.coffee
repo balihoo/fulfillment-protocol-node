@@ -21,8 +21,8 @@ exports.FulfillmentFunction = class FulfillmentFunction
     @dataZipper = new dataZipper.DataZipper bucket: opts.bucket
 
   validate: (input) ->
-    result = validate input, @schema.params
-    throw new error.FulfillmentValidationError "Error validating input", result.errors[0] if result.errors.length > 0
+    validationResult = validate input, @schema.params
+    throw new error.FulfillmentValidationError "Error validating input", validationResult if validationResult.errors.length > 0
 
   handle: (event, context) ->
     disableProtocol = null
@@ -52,12 +52,18 @@ exports.FulfillmentFunction = class FulfillmentFunction
           trace = err.stack.split "\n"
 
       # Failures are still returned via succeed() but the status and payload articulate the error
-      return context.succeed
+      payload =
         status: err.responseCode()
         notes: []
         reason: err.message
         result: err.message
         trace: trace
+
+      if err instanceof error.FulfillmentValidationError
+        payload.validation_errors = err.toFulfillmentPayload()
+
+      return context.succeed payload
+
 
     Promise.try =>
       if typeof event is 'string'
