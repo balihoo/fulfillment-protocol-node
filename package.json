@@ -1,6 +1,6 @@
 {
   "name": "fulfillment-protocol-node",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Protocol for interacting with the Balihoo Fulfillment system",
   "main": "lib/index.js",
   "directories": {

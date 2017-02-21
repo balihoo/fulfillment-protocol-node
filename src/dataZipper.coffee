@@ -5,7 +5,7 @@ S3Adapter = require('./s3Adapter').S3Adapter
 startsWith = require('./utils').startsWith
 Promise.promisifyAll zlib
 
-exports.MAX_RESULT_SIZE = MAX_RESULT_SIZE = 32768
+exports.MAX_RESULT_SIZE = MAX_RESULT_SIZE = 32000
 exports.ZIP_PREFIX = ZIP_PREFIX = 'FF-ZIP'
 exports.URL_PREFIX = URL_PREFIX = 'FF-URL'
 exports.SEPARATOR = SEPARATOR = ':'
